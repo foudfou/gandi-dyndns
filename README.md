@@ -106,6 +106,10 @@ several are queried each time the script is run in order to minimize the chance
 of obtaining an invalid IP address as returned by a single provider. When the
 results from several different providers concur, that address is used.
 
+If the file contains a single provider (ex: `http://192.168.0.1`, then the
+first IP address found on the page is used for updates. This is usefull if your
+router gateway provides the external IP address.
+
 ### Use
 Simply running the script will cause it to update the IP address immediately.
 

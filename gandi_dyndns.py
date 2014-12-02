@@ -74,6 +74,18 @@ def get_external_ip(attempts=100, threshold=3):
   # load the list of IP address providers
   providers = load_providers()
 
+  if len(providers) == 1:
+    provider = providers[0]
+    ips = get_external_ip_from_url(provider)
+    if ips:
+      ip = ips[0]
+      log.debug('Got IP from provider %s: %s', provider, ip)
+      return ip
+    else:
+      log.fatal('Failed to get an external IP address from %s ! Aborting.', provider)
+      sys.exit(1)
+      return None
+
   # we want several different providers to agree on the address, otherwise we
   # need to keep trying to get agreement. this prevents picking up 'addresses'
   # that are really just strings of four dot-delimited numbers.
@@ -145,6 +157,12 @@ def is_valid_dynamic_record(name, record):
   '''Return True if the record matched the given name and is an A record.'''
   return record['name'] == name and record['type'].lower() == 'a'
 
+def check_config(conf):
+  if 'name' in conf:
+    log.fatal("Parameter 'name' is now named 'names' and is an array.")
+    return False
+  return True
+
 def test_providers():
   '''Test all IP providers and log the IPs they return.'''
 
@@ -166,6 +184,8 @@ def update_ip():
   # load the config file so we can get our variables
   log.debug('Loading config file...')
   config = load_config()
+  if not check_config(config):
+    sys.exit(2)
   log.debug('Config file loaded.')
 
   # create a connection to the Gandi production API
